@@ -1,73 +1,80 @@
+#
+# Use this script to seed your site search
+# Usage: python seed.py
+# e.g. python seed.py
+#
+
 # import libraries
 import sys
 import numpy as np
-# import urllib.request
-# from bs4 import BeautifulSoup
 from lxml import html
 import requests
-import mysql.connector
 
-#import includes
-import mysql_config as mycnf
+# import includes
 import mysql_functions as myf
 import support_functions as sf
 
-mydb = mysql.connector.connect(
-    host = mycnf.host,
-    user = mycnf.user,
-    passwd = mycnf.passwd,
-    database = mycnf.database
-)
-
 # Enter your seed URL here
-print(len(sys.argv))
-if len(sys.argv)>1:
+site = "https://msnbc.com"
+
+# If you want to use this script from the command line,
+# just add the URL as a parameter, e.g.:
+# python seed.py https://www.cnn.com
+
+if len(sys.argv) == 2:
     site = sys.argv[1]
-else:
-    site = "https://msnbc.com"
+
+# Create a database connection
+mydb = myf.db_connect()
+
+# Request the URL
 page = requests.get(site + '/')
 
+# If page checks out, add URL to sites table
 if sf.clean_links(site + "/") == False:
     if myf.siteExists(mydb, site) == 0:
         siteID = myf.siteInsert(mydb, site)
         print ("Site %s inserted with ID %s" % (site, str(siteID)))
         # insert site and return insert ID
     else:
-        siteID = myf.siteGet(mydb, site)
+        print("Site already exists in sites table. Exiting.")
+        exit()
 
+# After inserting the site's URL in the sites table,
+# process the URL's HTML to extract local and external links
 tree = html.fromstring(page.content)
 links = tree.xpath('//a/@href')
 local_links = []
 external_links = []
 for link in links:
-    if link == "":
+    if link == "" or link[0:2] == "//":
         continue
     if link[0] == "/":
         # relative link, add site
-        # print ("Relative: "+link)
         link = site + link
         local_links.append(link)
         continue
     if link[0] == "#":
         continue
     if link.find(site) != -1:
-        # local site
+        # local link found
         print ("Local: "+link)
         local_links.append(link)
     else:
-        # external site
-        print(link)
+        # external link found
         external_links.append(sf.find_host(link).lower())
+
+# Process all links and remove duplicates
 
 local_links = np.unique(local_links)
 external_links = np.unique(external_links)
 
 nll_added = 0
 nel_added = 0
+
 for ll in local_links:
     if sf.clean_links(ll) == False:
         if myf.urlExists(mydb, ll) == 0:
-            print ("Adding: " + ll)
             myf.urlInsert(mydb, siteID,ll)
             nll_added = nll_added +1
 for el in external_links:
@@ -80,3 +87,6 @@ for el in external_links:
 
 
 print ("Seed sites added: " + str(nel_added))
+
+# Done.
+
