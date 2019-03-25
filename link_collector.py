@@ -3,46 +3,31 @@
 #
 import re
 import numpy as np
-import urllib.request
-from bs4 import BeautifulSoup
+
 from lxml import html
 import requests
-import mysql.connector
-import sys
 import progressbar
 
-#import includes
-import mysql_config as mycnf
+# import includes
 import mysql_functions as myf
 import support_functions as sf
 
-
-
-mydb = mysql.connector.connect(
-    host=mycnf.host,
-    user=mycnf.user,
-    passwd=mycnf.passwd,
-    database=mycnf.database
-)
+mydb = myf.db_connect()
 
 
 status_patterns = "(400)|(401)|(402)|(403)|(404)|(500)|(501)|(502)|(503)" 
 max_pages = 1000
 max_sites = 1000
-mycursor = mydb.cursor()
-sql = (
-    "SELECT id, url FROM `sites` WHERE scanned=0 LIMIT 0," + str(max_sites)
-)
-mycursor.execute(sql)
-myf.logQuery(mycursor)
-myresult = mycursor.fetchall()
-nresults = len(myresult)
+
+
+sites = myf.get_unscanned(mydb, max_sites)
+nresults = len(sites)
 
 
 with progressbar.ProgressBar(max_value=nresults) as bar:
-    for i in range(0,len(myresult)):
-        site = myresult[i][1]
-        nsite = myresult[i][0]
+    for i in range(0,len(sites)):
+        site = sites[i][1]
+        nsite = sites[i][0]
         print("  Fetching: " + site)
         myf.siteUpdate(mydb, nsite)
         try:

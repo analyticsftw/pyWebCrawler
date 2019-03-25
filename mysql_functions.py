@@ -2,11 +2,28 @@
 # MySQL support functions
 #
 
-import time
 import datetime
+import mysql.connector
+import mysql_config as myc
 
 
-import support_functions as sf
+def db_connect():
+    mydb = mysql.connector.connect(
+        host=myc.host,
+        user=myc.user,
+        passwd=myc.passwd,
+        database=myc.database
+    )
+    return mydb
+
+
+def get_unscanned(p, max_sites):
+    mycursor = p.cursor()
+    sql = "SELECT id, url FROM `sites` WHERE scanned=0 LIMIT 0," + str(max_sites)
+    mycursor.execute(sql)
+    myresult = mycursor.fetchall()
+    logQuery(mycursor)
+    return myresult
 
 
 def insertURL(p,id_site,url):
