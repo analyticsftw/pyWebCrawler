@@ -9,6 +9,7 @@ import requests
 import progressbar
 
 # import includes
+import settings
 import mysql_functions as myf
 import support_functions as sf
 
@@ -17,7 +18,7 @@ mydb = myf.db_connect()
 
 status_patterns = "(400)|(401)|(402)|(403)|(404)|(500)|(501)|(502)|(503)" 
 max_pages = 1000
-max_sites = 1000
+max_sites = 5000
 
 
 sites = myf.get_unscanned(mydb, max_sites)
@@ -28,29 +29,27 @@ with progressbar.ProgressBar(max_value=nresults) as bar:
     for i in range(0,len(sites)):
         site = sites[i][1]
         nsite = sites[i][0]
-        print("  Fetching: " + site)
+        sf.logMessage("  Fetching: " + site)
         myf.siteUpdate(mydb, nsite)
         try:
-            page = requests.get(site, timeout=5)
+            page = requests.get(site, timeout=5, headers=settings.headers)
             rem = re.search(status_patterns, str(page.status_code))
             if rem is not None:
-                print("  ERROR: Found status code " + str(page.status_code))
+                sf.logMessage ("ERROR: Found status code " + str(page.status_code))
                 myf.siteAssocRemove(mydb, nsite)
                 myf.siteRemove(mydb, nsite)
                 continue
-            else:
-                print ("  OK: Found status code " + str(page.status_code))
         except:
-            print("  ERROR: " + site)
+            sf.logMessage("  ERROR: " + site)
             myf.siteAssocRemove(mydb, nsite)
             myf.siteRemove(mydb, nsite)
+            myf.logQuery("ERROR: " + str(page.status_code) + " " + nsite)
             pass
 
         try:
             tree = html.fromstring(page.content)
             links = tree.xpath('//a/@href')
             if len(links) == 0:
-                # print("  No links found")
                 myf.siteAssocRemove(mydb, nsite)
                 myf.siteRemove(mydb, nsite)
                 continue
@@ -61,11 +60,16 @@ with progressbar.ProgressBar(max_value=nresults) as bar:
             local_links = np.unique(links[0])
             external_links = np.unique(links[1])
 
-            print("  Found: " + str(len(local_links)) + " local links on " + site)
-            print("  Found: " + str(len(external_links)) + " external links on " + site)
+            sf.logMessage("Found: " + str(len(local_links)) + " local links on " + site)
+            sf.logMessage("Found: " + str(len(external_links)) + " external links on " + site)
+
+            # Make an array of arrays
             store_links_array = [local_links, external_links]
-            store_links_action = sf.store_links(mydb, nsite, store_links_array)
+
+            # Pass array to a link storing function
+            store_links_action = sf.store_links(mydb, nsite, store_links_array, debug=0)
         except:
             pass
-        bar.update(i)
 
+        # Update progress bar before iterating the loop
+        bar.update(i)

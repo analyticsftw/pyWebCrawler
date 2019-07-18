@@ -41,7 +41,7 @@ def siteGet(p,url):
     mycursor.execute(sql)
     myresult = mycursor.fetchall()
     logQuery(mycursor)
-    return (myresult[0][0])
+    return myresult[0][0]
 
 
 def siteExists(p,url):
@@ -50,7 +50,7 @@ def siteExists(p,url):
     mycursor.execute(sql)
     myresult = mycursor.fetchall()
     logQuery(mycursor)
-    return (len(myresult))
+    return len(myresult)
 
 
 def siteIdExists(p,id):
@@ -59,7 +59,7 @@ def siteIdExists(p,id):
     mycursor.execute(sql)
     myresult = mycursor.fetchall()
     logQuery(mycursor)
-    return (myresult[0][1])
+    return myresult[0][1]
 
 
 def siteInsert(p, url):
@@ -106,7 +106,6 @@ def siteAssocRemove(p,id_site):
 
 
 def siteUpdate(p,id_site):
-    # print ("  Removing site ID " + str(id_site))
     mycursor = p.cursor()
     ds = datetime.datetime.now()
     dst = ds.strftime("%Y-%m-%d %H-%M-%S")
@@ -117,7 +116,7 @@ def siteUpdate(p,id_site):
 
 
 def siteRemove(p,id_site):
-    print ("  Removing site ID " + str(id_site))
+    # print ("  Removing site ID " + str(id_site))
     mycursor = p.cursor()
     sql = "DELETE FROM sites WHERE id = " + str(id_site)
     val = (str(id_site))
@@ -127,7 +126,6 @@ def siteRemove(p,id_site):
 
 
 def urlInsert(p,id_site,url):
-    # print ("  Inserting URL: " + url)
     mycursor = p.cursor()
     sql = (
         "INSERT INTO urls (id_site, url) "
@@ -139,14 +137,17 @@ def urlInsert(p,id_site,url):
     p.commit()
 
 
-def urlExists(p,url):
+def urlExists(p: object, url: str) -> bool:
     mycursor = p.cursor()
     sql = "SELECT id from urls WHERE url =  '"+ url + "';"
-    mycursor.execute(sql)
-    myresult = mycursor.fetchall()
-    # print ("  Found " + str(len(myresult)) + " results")
-    logQuery(mycursor)
-    return len(myresult)
+    try:
+        mycursor.execute(sql)
+        myresult = mycursor.fetchall()
+    except:
+        return False
+    else:
+        logQuery(mycursor)
+        return True
 
 
 def urlGet(p,id_site,url):
@@ -154,9 +155,9 @@ def urlGet(p,id_site,url):
     sql = "SELECT id from urls WHERE id_site =  '" + id_site + "';"
     mycursor.execute(sql)
     myresult = mycursor.fetchall()
-    # print ("Found " + str(len(myresult)) + " results")
     logQuery(mycursor)
     return len(myresult)
+
 
 def logQuery(p):
     fh = open("mysql.log", "a")
