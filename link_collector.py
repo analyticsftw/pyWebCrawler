@@ -39,12 +39,26 @@ with progressbar.ProgressBar(max_value=nresults) as bar:
                 myf.siteAssocRemove(mydb, nsite)
                 myf.siteRemove(mydb, nsite)
                 continue
+        except requests.exceptions.ConnectionError:
+            myf.siteAssocRemove(mydb, nsite)
+            myf.siteRemove(mydb, nsite)
+            sf.logMessage("CANNOT CONNECT: " + site)
+            pass
+        except requests.exceptions.TooManyRedirects:
+            myf.siteAssocRemove(mydb, nsite)
+            myf.siteRemove(mydb, nsite)
+            sf.logMessage("TOO MANY REDIRECTS: " + site)
+            pass
         except requests.exceptions.Timeout:
             myf.siteAssocRemove(mydb, nsite)
             myf.siteRemove(mydb, nsite)
-            myf.logQuery("TIMEOUT: " + site)
+            sf.logMessage("TIMEOUT: " + site)
             pass
-
+        except requests.exceptions.SSLError:
+            myf.siteAssocRemove(mydb, nsite)
+            myf.siteRemove(mydb, nsite)
+            sf.logMessage("SSL ERROR: " + site)
+            pass
         try:
             tree = html.fromstring(page.content)
             links = tree.xpath('//a/@href')
