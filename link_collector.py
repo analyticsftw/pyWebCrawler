@@ -42,7 +42,7 @@ with progressbar.ProgressBar(max_value=nresults) as bar:
         except requests.exceptions.Timeout:
             myf.siteAssocRemove(mydb, nsite)
             myf.siteRemove(mydb, nsite)
-            myf.logQuery("TIMEOUT: " + nsite)
+            myf.logQuery("TIMEOUT: " + site)
             pass
 
         try:
