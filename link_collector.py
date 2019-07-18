@@ -29,7 +29,7 @@ with progressbar.ProgressBar(max_value=nresults) as bar:
     for i in range(0,len(sites)):
         site = sites[i][1]
         nsite = sites[i][0]
-        sf.logMessage("  Fetching: " + site)
+        sf.logMessage("Fetching: " + site)
         myf.siteUpdate(mydb, nsite)
         try:
             page = requests.get(site, timeout=5, headers=settings.headers)
@@ -39,11 +39,10 @@ with progressbar.ProgressBar(max_value=nresults) as bar:
                 myf.siteAssocRemove(mydb, nsite)
                 myf.siteRemove(mydb, nsite)
                 continue
-        except:
-            sf.logMessage("  ERROR: " + site)
+        except requests.exceptions.Timeout:
             myf.siteAssocRemove(mydb, nsite)
             myf.siteRemove(mydb, nsite)
-            myf.logQuery("ERROR: " + str(page.status_code) + " " + nsite)
+            myf.logQuery("TIMEOUT: " + nsite)
             pass
 
         try:
