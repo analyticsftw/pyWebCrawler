@@ -54,10 +54,25 @@ with progressbar.ProgressBar(max_value=nresults) as bar:
             myf.siteRemove(mydb, nsite)
             sf.logMessage("TIMEOUT: " + site)
             pass
+        except requests.exceptions.ChunkedEncodingError:
+            myf.siteAssocRemove(mydb, nsite)
+            myf.siteRemove(mydb, nsite)
+            sf.logMessage("INCOMPLETE READ: " + site)
+            pass
+        except requests.exceptions.ContentDecodingError:
+            myf.siteAssocRemove(mydb, nsite)
+            myf.siteRemove(mydb, nsite)
+            sf.logMessage("ENCODING ERROR: " + site)
+            pass
         except requests.exceptions.SSLError:
             myf.siteAssocRemove(mydb, nsite)
             myf.siteRemove(mydb, nsite)
             sf.logMessage("SSL ERROR: " + site)
+            pass
+        except requests.exceptions.ContentDecodingError:
+            myf.siteAssocRemove(mydb, nsite)
+            myf.siteRemove(mydb, nsite)
+            sf.logMessage("DECODING ERROR: " + site)
             pass
         try:
             tree = html.fromstring(page.content)

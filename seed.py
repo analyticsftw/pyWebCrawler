@@ -38,8 +38,7 @@ if not sf.clean_links(site):
         print ("Site %s inserted with ID %s" % (site, str(siteID)))
         # insert site and return insert ID
     else:
-        print("Site already exists in sites table. Exiting.")
-        exit()
+        print("Site already exists in sites table.")
 
 # After inserting the site's URL in the sites table,
 # process the URL's HTML to extract local and external links
@@ -51,7 +50,7 @@ for link in links:
     if link == "" or link[0:2] == "//":
         # link is empty or begins with doubles slashes
         continue
-        
+
     if link.startswith("#"):
         # anchor, ignore
         continue
@@ -95,7 +94,7 @@ nel_added = 0
 
 for ll in local_links:
     if not sf.clean_links(ll):
-        if myf.urlExists(mydb, ll):
+        if not myf.urlExists(mydb, ll):
             myf.urlInsert(mydb, siteID,ll)
             nll_added = nll_added +1
 for el in external_links:
