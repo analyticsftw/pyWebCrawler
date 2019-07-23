@@ -13,16 +13,15 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: Your awesome title
-email: your-email@example.com
+title: pyWebcrawler - A Python-based web crawler
+email: julien.coquet@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: jekyllrb
-github_username:  jekyll
+  This Python-based Web crawler uses the requests API.
+  When requesting pages, it stores both local and external links in a MySQL database, as well as the association between sites. The MySQL data can later be used to create site relationship maps.
+baseurl: "/docs" # the subpath of your site, e.g. /blog
+url: "https://analyticsftw.github.io/pyWebCrawler" # the base hostname & protocol for your site, e.g. http://example.com
+twitter_username: juliencoquet
+github_username:  analyticsftw
 
 # Build settings
 markdown: kramdown
