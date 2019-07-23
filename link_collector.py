@@ -69,11 +69,27 @@ with progressbar.ProgressBar(max_value=nresults) as bar:
             myf.siteRemove(mydb, nsite)
             sf.logMessage("SSL ERROR: " + site)
             pass
+        except requests.exceptions.InvalidSchema:
+            myf.siteAssocRemove(mydb, nsite)
+            myf.siteRemove(mydb, nsite)
+            sf.logMessage("SCHEMA ERROR: " + site)
+            pass
+        except requests.exceptions.MissingSchema:
+            myf.siteAssocRemove(mydb, nsite)
+            myf.siteRemove(mydb, nsite)
+            sf.logMessage("SCHEMA ERROR: " + site)
+            pass
         except requests.exceptions.ContentDecodingError:
             myf.siteAssocRemove(mydb, nsite)
             myf.siteRemove(mydb, nsite)
             sf.logMessage("DECODING ERROR: " + site)
             pass
+        except requests.exceptions.InvalidURL:
+            myf.siteAssocRemove(mydb, nsite)
+            myf.siteRemove(mydb, nsite)
+            sf.logMessage("REQUEST ERROR: " + site)
+            pass
+
         try:
             tree = html.fromstring(page.content)
             links = tree.xpath('//a/@href')

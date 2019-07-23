@@ -110,9 +110,12 @@ def siteUpdate(p,id_site):
     ds = datetime.datetime.now()
     dst = ds.strftime("%Y-%m-%d %H-%M-%S")
     sql = "UPDATE sites SET scanned=1,date='" + dst + "' WHERE id = " + str(id_site)
-    mycursor.execute(sql)
-    logQuery(mycursor)
-    p.commit()
+    try:
+        mycursor.execute(sql)
+        logQuery(mycursor)
+        p.commit()
+    except mysql.connector.errors.InternalError:
+        logQuery("ERROR " + sql)
 
 
 def siteRemove(p,id_site):
