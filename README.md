@@ -20,5 +20,4 @@ Optional: you can add an argument for maximum number of sites to scan, e.g.
 
 # Notes
 Activity / errors can be logged in *mysql.log* and *python.log* using functions in *mysql_functions.py* and *support_functions.py*
- 
-
+Logs can get sizeable pretty quick so purge them regularly. 
