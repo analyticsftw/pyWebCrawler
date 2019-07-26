@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 25, 2019 at 09:54 PM
+-- Generation Time: Jul 26, 2019 at 02:48 PM
 -- Server version: 10.1.37-MariaDB-0+deb9u1
 -- PHP Version: 7.0.33-0+deb9u3
 
@@ -21,6 +21,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `webmap`
 --
+CREATE DATABASE IF NOT EXISTS `webmap` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `webmap`;
 
 -- --------------------------------------------------------
 
@@ -31,6 +33,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `sites` (
   `id` int(11) NOT NULL,
   `url` varchar(512) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
+  `domain` varchar(255) NOT NULL,
   `tld` varchar(5) NOT NULL,
   `scanned` int(1) NOT NULL DEFAULT '0',
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
