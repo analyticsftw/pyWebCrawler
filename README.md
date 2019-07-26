@@ -15,6 +15,9 @@ Once you have enough entries in your *sites* table, run
 
 This will crawl all sites in *sites* table that have not yet been scanned and create an an association between *id_site1* (site where the external links were found) and *id_site2* (each external site ID)
 
+Optional: you can add an argument for maximum number of sites to scan, e.g.
+  *python link_collect.py 1000* 
+
 # Notes
 Activity / errors can be logged in *mysql.log* and *python.log* using functions in *mysql_functions.py* and *support_functions.py*
  
