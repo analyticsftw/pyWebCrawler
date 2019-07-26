@@ -63,9 +63,19 @@ def siteIdExists(p,id):
 
 
 def siteInsert(p, url):
-    p# rint("  Inserting site: " + url)
+    # print("  Inserting site: " + url)
     mycursor = p.cursor()
-    sql = "INSERT INTO sites (url) VALUES ('" + url + "')"
+    # Find starting position of domain name after double slashes
+    protocol = url[:url.find('//')+2]
+    domain = url[len(protocol):]
+    # Exclude trailing slash
+    if domain.find('/') > 0:
+        domain = domain[:domain.find('/')]
+    # Just in case the URL is malformed
+    elif domain.find('?') > 0:
+        domain = domain[:domain.find('/')]
+     
+    sql = "INSERT INTO sites (url, domain) VALUES ('" + url + "','" + domain + "')"
     mycursor.execute(sql)
     logQuery(mycursor)
     p.commit()
@@ -140,7 +150,7 @@ def urlInsert(p,id_site,url):
     p.commit()
 
 
-def urlExists(p: object, url: str) -> bool:
+def urlExists(p, url):
     mycursor = p.cursor()
     sql = "SELECT id from urls WHERE url =  '"+ url + "';"
     try:

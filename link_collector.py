@@ -10,6 +10,7 @@ import progressbar
 
 # import includes
 import settings
+import sys
 import mysql_functions as myf
 import support_functions as sf
 
@@ -18,8 +19,10 @@ mydb = myf.db_connect()
 
 status_patterns = "(400)|(401)|(402)|(403)|(404)|(500)|(501)|(502)|(503)" 
 max_pages = 1000
-max_sites = 5000
+max_sites = 10
 
+if len(sys.argv) == 2:
+    max_sites = sys.argv[1]
 
 sites = myf.get_unscanned(mydb, max_sites)
 nresults = len(sites)
