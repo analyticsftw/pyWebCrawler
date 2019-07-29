@@ -5,6 +5,7 @@
 import datetime
 import mysql.connector
 import mysql_config as myc
+from tld import get_tld
 
 
 def db_connect():
@@ -68,14 +69,20 @@ def siteInsert(p, url):
     # Find starting position of domain name after double slashes
     protocol = url[:url.find('//')+2]
     domain = url[len(protocol):]
+    tld=''
     # Exclude trailing slash
     if domain.find('/') > 0:
         domain = domain[:domain.find('/')]
     # Just in case the URL is malformed
     elif domain.find('?') > 0:
         domain = domain[:domain.find('/')]
-     
-    sql = "INSERT INTO sites (url, domain) VALUES ('" + url + "','" + domain + "')"
+    try:
+        tld = get_tld(url)
+    except tld.exceptions.TldBadUr:
+        sf.logMessage("TLD - BAD URL: " + url)
+        tld=''
+
+    sql = "INSERT INTO sites (url, domain, tld) VALUES ('" + url + "','" + domain + "','" + tld + "')"
     mycursor.execute(sql)
     logQuery(mycursor)
     p.commit()
@@ -120,6 +127,16 @@ def siteUpdate(p,id_site):
     ds = datetime.datetime.now()
     dst = ds.strftime("%Y-%m-%d %H-%M-%S")
     sql = "UPDATE sites SET scanned=1,date='" + dst + "' WHERE id = " + str(id_site)
+    try:
+        mycursor.execute(sql)
+        logQuery(mycursor)
+        p.commit()
+    except mysql.connector.errors.InternalError:
+        logQuery("ERROR " + sql)
+
+
+def genericQuery(p,sql):
+    mycursor = p.cursor()
     try:
         mycursor.execute(sql)
         logQuery(mycursor)
@@ -173,6 +190,6 @@ def urlGet(p,id_site,url):
 
 
 def logQuery(p):
-    fh = open("mysql.log", "a")
+    fh = open("./logs/mysql.log", "a")
     fh.write(p.statement+"\n")
     fh.close()

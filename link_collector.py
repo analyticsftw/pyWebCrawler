@@ -21,10 +21,10 @@ mydb = myf.db_connect()
 # Global variables
 
 # for HTTP status codes
-status_patterns = "(400)|(401)|(402)|(403)|(404)|(500)|(501)|(502)|(503)"
+status_patterns = "(400)|(401)|(402)|(403)|(404)|(451)|(500)|(501)|(502)|(503)"
 
 # Maximum sites to scan
-max_sites = 10
+max_sites = 10000
 
 # Maximum pages to scan per site
 max_pages = 1000
@@ -59,46 +59,43 @@ with progressbar.ProgressBar(max_value=nresults) as bar:
             myf.siteRemove(mydb, nsite)
             sf.logMessage("CANNOT CONNECT: " + site)
             pass
+
         except requests.exceptions.TooManyRedirects:
             myf.siteAssocRemove(mydb, nsite)
             myf.siteRemove(mydb, nsite)
             sf.logMessage("TOO MANY REDIRECTS: " + site)
             pass
+
         except requests.exceptions.Timeout:
             myf.siteAssocRemove(mydb, nsite)
             myf.siteRemove(mydb, nsite)
             sf.logMessage("TIMEOUT: " + site)
             pass
+
         except requests.exceptions.ChunkedEncodingError:
             myf.siteAssocRemove(mydb, nsite)
             myf.siteRemove(mydb, nsite)
             sf.logMessage("INCOMPLETE READ: " + site)
             pass
+
         except requests.exceptions.ContentDecodingError:
             myf.siteAssocRemove(mydb, nsite)
             myf.siteRemove(mydb, nsite)
             sf.logMessage("ENCODING ERROR: " + site)
             pass
-        except requests.exceptions.SSLError:
-            myf.siteAssocRemove(mydb, nsite)
-            myf.siteRemove(mydb, nsite)
-            sf.logMessage("SSL ERROR: " + site)
-            pass
+
         except requests.exceptions.InvalidSchema:
             myf.siteAssocRemove(mydb, nsite)
             myf.siteRemove(mydb, nsite)
             sf.logMessage("SCHEMA ERROR: " + site)
             pass
+
         except requests.exceptions.MissingSchema:
             myf.siteAssocRemove(mydb, nsite)
             myf.siteRemove(mydb, nsite)
             sf.logMessage("SCHEMA ERROR: " + site)
             pass
-        except requests.exceptions.ContentDecodingError:
-            myf.siteAssocRemove(mydb, nsite)
-            myf.siteRemove(mydb, nsite)
-            sf.logMessage("DECODING ERROR: " + site)
-            pass
+
         except requests.exceptions.InvalidURL:
             myf.siteAssocRemove(mydb, nsite)
             myf.siteRemove(mydb, nsite)
@@ -116,11 +113,7 @@ with progressbar.ProgressBar(max_value=nresults) as bar:
                 myf.siteRemove(mydb, nsite)
                 continue
 
-            # Build arrays for local and external links
-            local_links = []
-            external_links = []
-
-            # Sort arrays and keep uniques
+            # Build arrays for local and external links, sort arrays and keep uniques
             links = sf.sort_links(site, links)
             local_links = np.unique(links[0])
             external_links = np.unique(links[1])

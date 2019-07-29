@@ -7,7 +7,7 @@ import mysql_functions as myf
 
 def clean_links(link, debug=0):
     # print("  Checking URL: " + link)
-    pats: str = "(share?text)|(javascript:)|(mailto:)|(.(pdf|png|jpg|doc|xls|gif))|((\?|&)utm_)|(tel:)|\'"
+    pats: str = "(share?text)|(javascript:)|(mailto:)|(.(pdf|png|jpg|doc|xls|gif))|((?|&)utm_)|(tel:)"
     match = re.match(pats, link)
     if match is not None:
         if debug == 1: 
@@ -22,8 +22,8 @@ def clean_links(link, debug=0):
 
 def find_host(url):
     chunks = url.split('/')
-    newurl = chunks[0:3]
-    return "/".join(newurl) + '/'
+    new_url = chunks[0:3]
+    return "/".join(new_url) + '/'
 
 
 def sort_links(site, links):
@@ -87,6 +87,6 @@ def store_links(db_cursor, nsite, link_list, debug=1):
 
 
 def logMessage(p):
-    fh = open("python.log", "a")
+    fh = open("./logs/python.log", "a")
     fh.write(p+"\n")
     fh.close()
