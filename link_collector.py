@@ -18,6 +18,13 @@ import support_functions as sf
 mydb = myf.db_connect()
 
 
+# Functions
+def handle_exception(label, mydb, nsite):
+    myf.siteAssocRemove(mydb, nsite)
+    myf.siteRemove(mydb, nsite)
+    sf.logMessage(label + ": " + site)
+
+
 # Global variables
 
 # for HTTP status codes
@@ -42,8 +49,10 @@ with progressbar.ProgressBar(max_value=nresults) as bar:
     for i in range(0,len(sites)):
         site = sites[i][1]
         nsite = sites[i][0]
+        # Determine if site is scannable
+        site_reached = 0
         sf.logMessage("Fetching: " + site)
-        myf.siteUpdate(mydb, nsite)
+
         try:
             page = requests.get(site, timeout=5, headers=settings.headers)
             rem = re.search(status_patterns, str(page.status_code))
@@ -54,16 +63,17 @@ with progressbar.ProgressBar(max_value=nresults) as bar:
                 continue
 
         # Extensive exception management for requests
+        except UnicodeError:
+            # The URL got captured but got garbled
+            handle_exception("UNICODE ERROR", mydb, nsite)
+            pass
+
         except requests.exceptions.ConnectionError:
-            myf.siteAssocRemove(mydb, nsite)
-            myf.siteRemove(mydb, nsite)
-            sf.logMessage("CANNOT CONNECT: " + site)
+            handle_exception("CANNOT CONNECT", mydb, nsite)
             pass
 
         except requests.exceptions.TooManyRedirects:
-            myf.siteAssocRemove(mydb, nsite)
-            myf.siteRemove(mydb, nsite)
-            sf.logMessage("TOO MANY REDIRECTS: " + site)
+            handle_exception("TOO MANY REDIRECTS", mydb, nsite)
             pass
 
         except requests.exceptions.Timeout:
@@ -102,6 +112,10 @@ with progressbar.ProgressBar(max_value=nresults) as bar:
             sf.logMessage("REQUEST ERROR: " + site)
             pass
 
+        finally:
+            # Connection successful
+            site_reached = 1
+
         # Assuming we passed the initial request, parse the HTML structure of the page
         try:
             tree = html.fromstring(page.content)
@@ -126,6 +140,9 @@ with progressbar.ProgressBar(max_value=nresults) as bar:
 
             # Pass array to a link storing function
             store_links_action = sf.store_links(mydb, nsite, store_links_array, debug=0)
+
+            # Set site as scanned
+            myf.siteUpdate(mydb, nsite)
         except:
             pass
 

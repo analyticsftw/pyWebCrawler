@@ -11,14 +11,12 @@ def rename(src, dest, path='./logs/'):
     src = path + src
     dest = path + dest
     print("Attempting to rename %s to %s" % (src, dest))
-    if os._exists(src) is False:
-        print("File does not exist")
-        return False
-    if os._exists(dest) is True:
-        print("Rotation log already exists, skipping rename until next rotation")
-        return False
-    os.rename(src, dest)
-    return dest
+    try:
+        os.rename(src, dest)
+    except:
+        print("uh oh")
+    finally:
+        return True
 
 
 def compress(file):
@@ -30,12 +28,12 @@ def compress(file):
 
 pLog = "python.log"
 pArchive = date_time + "-" + pLog
-pRename = rename(pLog, pArchive)
+pRename = rename(pLog, pArchive, path=path)
 if pRename is True:
-    compress(pRename)
+    compress(path+pArchive)
 
 mLog = "mysql.log"
 mArchive = date_time + "-" + mLog
-mRename = rename(mLog, pArchive)
+mRename = rename(mLog, pArchive, path=path)
 if mRename is True:
-    compress(mRename)
+    compress(path+mArchive)
