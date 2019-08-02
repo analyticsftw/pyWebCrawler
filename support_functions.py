@@ -7,7 +7,7 @@ import mysql_functions as myf
 
 def clean_links(link, debug=0):
     # print("  Checking URL: " + link)
-    pats: str = "(share?text)|(javascript:)|(mailto:)|(.(pdf|png|jpg|doc|xls|gif))|((?|&)utm_)|(tel:)"
+    pats: str = "(share?text)|(javascript:)|(mailto:)|(.(pdf|png|jpg|doc|xls|gif))|(utm_)|(tel:)"
     match = re.match(pats, link)
     if match is not None:
         if debug == 1: 

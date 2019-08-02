@@ -8,7 +8,8 @@ import mysql_config as myc
 from tld import get_tld
 
 
-def db_connect():
+def db_connect(mysql=mysql):
+    import mysql.connector
     mydb = mysql.connector.connect(
         host=myc.host,
         user=myc.user,
