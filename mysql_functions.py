@@ -3,13 +3,13 @@
 #
 
 import datetime
+import mysql.connector
 import mysql_config as myc
 from tld import get_tld
 
 
 def db_connect():
-    from mysql import connector
-    mydb = connector.connect(
+    mydb = mysql.connector.connect(
         host=myc.host,
         user=myc.user,
         passwd=myc.passwd,
